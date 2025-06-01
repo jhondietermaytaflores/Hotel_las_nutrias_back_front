@@ -1,0 +1,97 @@
+import { useEffect, useState } from 'react'
+import { api } from '../../servicios/api'
+import Swal from 'sweetalert2'
+import ModalUsuario from '../../componentes/ModalUsuario'
+import { FaUserEdit, FaTrash, FaUserPlus } from 'react-icons/fa'
+
+function UsuariosEmpleadosAdmin() {
+    const [usuarios, setUsuarios] = useState([])
+    const [showModal, setShowModal] = useState(false)
+    const [usuarioEditando, setUsuarioEditando] = useState(null)
+
+    const cargarUsuarios = async () => {
+        const { data } = await api.get('/usuarios')
+        const empleados = data.filter(u => u.id_rol !== 3) // solo empleados
+        setUsuarios(empleados)
+    }
+
+    const guardarUsuario = async (datos) => {
+        if (usuarioEditando) {
+            await api.put(`/usuarios/${usuarioEditando.id}`, datos)
+            Swal.fire('Actualizado', 'Empleado actualizado', 'success')
+        } else {
+            await api.post('/usuarios', datos)
+            Swal.fire('Creado', 'Empleado registrado', 'success')
+        }
+        setShowModal(false)
+        cargarUsuarios()
+    }
+
+    const eliminarUsuario = async (id) => {
+        const confirm = await Swal.fire({
+            title: '¿Eliminar empleado?',
+            icon: 'warning',
+            showCancelButton: true,
+        })
+        if (confirm.isConfirmed) {
+            await api.delete(`/usuarios/${id}`)
+            cargarUsuarios()
+            Swal.fire('Eliminado', '', 'success')
+        }
+    }
+
+    useEffect(() => {
+        cargarUsuarios()
+    }, [])
+
+    return (
+        <div>
+            <div className="flex justify-between mb-6">
+                <h2 className="text-2xl font-bold">Empleados</h2>
+                <button onClick={() => { setShowModal(true); setUsuarioEditando(null) }} className="bg-green-600 text-white px-4 py-2 rounded flex items-center gap-2">
+                    <FaUserPlus /> Nuevo
+                </button>
+            </div>
+
+            <div className="overflow-x-auto bg-white shadow rounded">
+                <table className="min-w-full">
+                    <thead className="bg-gray-100">
+                        <tr>
+                            <th className="p-2 text-left">Nombre</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Rol</th>
+                            <th className="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {usuarios.map((u) => (
+                            <tr key={u.id} className="border-t">
+                                <td className="p-2">{u.nombre}</td>
+                                <td>{u.correo}</td>
+                                <td>{u.telefono}</td>
+                                <td>{u.roles?.nombre_rol || '—'}</td>
+                                <td className="text-center">
+                                    <button onClick={() => { setShowModal(true); setUsuarioEditando(u) }} className="text-blue-600 mx-1"><FaUserEdit /></button>
+                                    <button onClick={() => eliminarUsuario(u.id)} className="text-red-600 mx-1"><FaTrash /></button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {showModal && (
+                <ModalUsuario
+                    visible={showModal}
+                    onClose={() => setShowModal(false)}
+                    onSubmit={guardarUsuario}
+                    userEdit={usuarioEditando}
+                    soloRoles={['administrador', 'recepcionista', 'camarero', 'cocinero', 'limpieza']} // filtramos roles
+                />
+            )}
+        </div>
+    )
+}
+
+export default UsuariosEmpleadosAdmin
