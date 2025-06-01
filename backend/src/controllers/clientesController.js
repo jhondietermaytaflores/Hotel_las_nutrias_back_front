@@ -5,18 +5,18 @@ export const buscarClientes = async (req, res) => {
     const { data, error } = await supabase
         .from('clientes')
         .select('id_cliente, nombres, apellidos, correo,*')
-        
+
         .or(`nombres.ilike.%${q}%,apellidos.ilike.%${q}%,ci.ilike.%${q}%`)
-        //.ilike('nombres', `%${q}%,apellidos.ilike.%${q}%,ci.ilike.%${q}%`) // búsqueda parcial
+    //.ilike('nombres', `%${q}%,apellidos.ilike.%${q}%,ci.ilike.%${q}%`) // búsqueda parcial
     if (error) return res.status(500).json({ error: error.message })
     res.json(data)
 }
 
 export const crearCliente = async (req, res) => {
-    const { nombres, apellidos, ci, telefono, correo } = req.body
+    const { nombres, apellidos, ci, complemento_ci,telefono, correo } = req.body
     const { data, error } = await supabase
         .from('clientes')
-        .insert([{ nombres, apellidos, ci, telefono, correo }])
+        .insert([{ nombres, apellidos, ci,complemento_ci, telefono, correo }])
         .select()
         .single()
     if (error) return res.status(400).json({ error: error.message })
@@ -35,10 +35,10 @@ export const obtenerClientePorId = async (req, res) => {
 }
 export const actualizarCliente = async (req, res) => {
     const { id } = req.params
-    const { nombres, apellidos, ci, telefono, correo } = req.body
+    const { nombres, apellidos, ci,complemento_ci, telefono, correo } = req.body
     const { data, error } = await supabase
         .from('clientes')
-        .update({ nombres, apellidos, ci, telefono, correo })
+        .update({ nombres, apellidos, ci,complemento_ci, telefono, correo })
         .eq('id_cliente', id)
         .select()
         .single()
@@ -59,10 +59,48 @@ export const obtenerClientesPorReserva = async (req, res) => {
         .select('clientes(id_cliente, nombres, apellidos, correo)')
         .eq('id_reserva', id)
         .single()
-    
+
     if (error) return res.status(404).json({ error: 'Reserva no encontrada' })
-    
+
     if (!data.clientes) return res.status(404).json({ error: 'Cliente no encontrado para esta reserva' })
-    
+
     res.json(data.clientes)
+}
+
+export const obtenerHistorialCliente = async (req, res) => {
+    const { id } = req.params
+
+    const [reservas, pedidos] = await Promise.all([
+        supabase
+            .from('reservas')
+            .select('id, fecha_entrada, fecha_salida, estado, habitaciones(numero)')
+            .eq('cliente_id', id),
+        supabase
+            .from('pedidos')
+            .select('id_pedido, total, estado, fecha_pedido')
+            .eq('cliente_id', id),
+    ])
+
+    if (reservas.error || pedidos.error) {
+        return res.status(500).json({ error: 'Error al cargar historial' })
+    }
+
+    res.json({
+        reservas: reservas.data,
+        pedidos: pedidos.data,
+    })
+}
+
+
+export const obtenerReservasPorCliente = async (req, res) => {
+    const { id } = req.params
+    const { data, error } = await supabase
+        .from('reservas')
+        .select('*')
+        .eq('id_cliente', id)
+        .order('fecha_inicio', { ascending: false })
+
+    if (error) return res.status(404).json({ error: 'Reservas no encontradas por Cliente' })
+
+    res.json(data)
 }

@@ -14,6 +14,9 @@ import tiposInventarioRoutes from './routes/tiposInventario.js'
 import inventarioHabitacionRoutes from './routes/inventarioHabitacion.js'
 import inventarioSectorRoutes from './routes/inventarioSector.js'
 
+import rolesRoutes from './routes/roles.js'
+
+
 
 import clientesRoutes from './routes/clientes.js'
 
@@ -50,6 +53,8 @@ app.use('/api/inventario-habitacion', inventarioHabitacionRoutes)
 app.use('/api/inventario-sector', inventarioSectorRoutes)
 
 app.use('/api/clientes', clientesRoutes)
+
+app.use('/api/roles', rolesRoutes)
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`))

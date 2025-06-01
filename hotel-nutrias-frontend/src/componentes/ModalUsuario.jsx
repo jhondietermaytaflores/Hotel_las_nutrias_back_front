@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { api } from '../servicios/api'
+
 
 function ModalUsuario({ visible, onClose, onSubmit, userEdit, soloRoles = null }) {
   const [form, setForm] = useState({
@@ -9,14 +11,37 @@ function ModalUsuario({ visible, onClose, onSubmit, userEdit, soloRoles = null }
     id_rol: '3',
   })
 
-  const [roles, setRoles] = useState([])
+  /* const [roles, setRoles] = useState([])
   useEffect(() => {
     const cargarRoles = async () => {
-      const { data } = await api.get('/roles')
+      try {
+      const { data } = await api.get('/usuarios')
       setRoles(data)
+    } catch (error) {
+      console.error('Error al cargar roles', error)
+    }
     }
     cargarRoles()
-  }, [])
+  }, []) */
+
+  const [roles, setRoles] = useState([])
+
+  useEffect(() => {
+    const cargarRoles = async () => {
+      try {
+        const { data } = await api.get('/roles')
+        // Si soloRoles está definido (ej: ['administrador', 'camarero']), filtramos
+        const filtrados = soloRoles
+          ? data.filter(r => soloRoles.includes(r.nombre_rol))
+          : data
+        setRoles(filtrados)
+      } catch (err) {
+        console.error('Error al cargar roles:', err)
+      }
+    }
+
+    cargarRoles()
+  }, [soloRoles])
 
   useEffect(() => {
     if (userEdit) {
@@ -71,13 +96,9 @@ function ModalUsuario({ visible, onClose, onSubmit, userEdit, soloRoles = null }
           <input name="contrasena" value={form.contrasena} onChange={handleChange} placeholder="Contraseña" className="w-full border p-2 rounded" type="password" required />
           <select name="id_rol" value={form.id_rol} onChange={handleChange} className="w-full border p-2 rounded" required>
             <option value="">Seleccione rol</option>      
-            {roles
-              .filter(r => !soloRoles || soloRoles.includes(r.nombre_rol))
-              .map(r => (
-                <option key={r.id_rol} value={r.id_rol}>
-                  {r.nombre_rol}
-                </option>
-              ))}
+            {roles.map((r) => (
+              <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>
+            ))}
 
           </select>
           <div className="flex justify-end gap-2 mt-4">
