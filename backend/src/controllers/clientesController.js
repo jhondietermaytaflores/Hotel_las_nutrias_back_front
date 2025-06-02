@@ -1,5 +1,5 @@
 import { supabase } from '../config/supabase.js'
-import bcrypt from 'bcrypt'
+import { registrarUsuarioAuth } from '../utils/registrarEnAuth.js'
 import { enviarCredenciales } from '../services/emailService.js'
 
 export const buscarClientes = async (req, res) => {
@@ -14,17 +14,6 @@ export const buscarClientes = async (req, res) => {
     res.json(data)
 }
 
-/* export const crearCliente = async (req, res) => {
-    // 1. ya funcionaba
-    const { nombres, apellidos, ci, complemento_ci,telefono, correo} = req.body
-    const { data, error } = await supabase
-        .from('clientes')
-        .insert([{ nombres, apellidos, ci,complemento_ci, telefono, correo }])
-        .select()
-        .single()
-    if (error) return res.status(400).json({ error: error.message })
-    res.json(data)
-} */
 // 1. Crear Cliente y su Usuario asociado
 export const crearCliente = async (req, res) => {
     try {
@@ -41,11 +30,11 @@ export const crearCliente = async (req, res) => {
             return res.status(400).json({ error: 'Ya existe un cliente con ese CI' })
         }
 
-        // Generar y hashear contraseña
+        // Generar contraseña por defecto si no se proporciona
         const passwordFinal = contrasena?.trim() ? contrasena : `${ci}nutrias`
-        const hashed = await bcrypt.hash(passwordFinal, 10)
+        // Crear usuario en Supabase Auth
+        const auth_id = await registrarUsuarioAuth(correo, passwordFinal)
 
-        console.log('🧪 supabase definido:', typeof supabase === 'object')
         console.log('🧪 Intentando crear usuario...')
         // Crear usuario
         const { data: nuevoUsuario, error: errorUsuario } = await supabase
@@ -53,9 +42,10 @@ export const crearCliente = async (req, res) => {
             .insert([{
                 nombre: `${nombres} ${apellidos}`,
                 correo,
-                telefono,
-                contrasena: hashed,
-                id_rol: 3,
+                telefono,                
+                id_rol: 3,   // Asignar rol de cliente (3)             
+                auth_id, // Guardamos el ID de auth.users
+                contrasena: null, // No guardamos la contraseña aquí, solo en auth.users
             }])
             .select('id')
             .single()
@@ -65,21 +55,7 @@ export const crearCliente = async (req, res) => {
             return res.status(500).json({ error: 'Error al crear el usuario' })
         }
 
-        // Crear cliente vinculado
-        /* const { data: nuevoCliente, error: errorCliente } = await supabase
-        console.log('🧪 Intentando crear cliente...')
-            .from('clientes')
-            .insert([{
-                nombres,
-                apellidos,
-                ci,
-                complemento_ci,
-                telefono,
-                correo,
-                id_usuario: nuevoUsuario.id
-            }])
-            .select()
-            .single() */
+        
         const payloadCliente = {
             nombres,
             apellidos,
@@ -98,10 +74,7 @@ export const crearCliente = async (req, res) => {
             .select()
             .single()
 
-        /* if (errorCliente) {
-            console.error('❌ Error al crear cliente:', errorCliente)
-            return res.status(400).json({ error: errorCliente.message })
-        } */
+        
         if (error) {
             console.error('❌ Error al crear cliente:', error)
             return res.status(400).json({ error: error.message })
