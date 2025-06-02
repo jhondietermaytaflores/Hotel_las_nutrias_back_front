@@ -41,7 +41,7 @@ function UsuariosClientesAdmin() {
             Swal.fire('Actualizado', '', 'success')
         } else {
             await api.post('/clientes', cliente)
-            Swal.fire('Creado', '', 'success')
+            Swal.fire('Creado', 'Cliente y usuario registrado correctamente', 'success')
         }
         setShowModal(false)
         cargarClientes()

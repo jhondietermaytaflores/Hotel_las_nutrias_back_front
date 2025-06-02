@@ -27,7 +27,6 @@ function ModalCliente({ visible, onClose, onSubmit, clienteEdit }) {
         }
     }, [clienteEdit])
 
-
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
     }
@@ -50,6 +49,17 @@ function ModalCliente({ visible, onClose, onSubmit, clienteEdit }) {
                     <input name="complemento_ci" value={form.complemento_ci} onChange={handleChange} placeholder="Complemento CI" className="border p-2 w-full rounded" />
                     <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono" className="border p-2 w-full rounded" required />
                     <input name="correo" value={form.correo} onChange={handleChange} placeholder="Correo" className="border p-2 w-full rounded" required />
+
+                    <input
+                        name="contrasena"
+                        type="password"
+                        value={form.contrasena || ''}
+                        onChange={handleChange}
+                        placeholder="Contraseña (opcional, te llegara un correo con la contraseña por defecto, puedes cambiarla luego)"
+                        className="border p-2 w-full rounded"
+                    />
+
+
                     <div className="flex justify-end gap-2 mt-4">
                         <button type="button" onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded">Cancelar</button>
                         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{clienteEdit ? 'Actualizar' : 'Crear'}</button>

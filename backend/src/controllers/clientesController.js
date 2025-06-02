@@ -1,4 +1,6 @@
 import { supabase } from '../config/supabase.js'
+import bcrypt from 'bcrypt'
+import { enviarCredenciales } from '../services/emailService.js'
 
 export const buscarClientes = async (req, res) => {
     const { q } = req.query
@@ -12,8 +14,9 @@ export const buscarClientes = async (req, res) => {
     res.json(data)
 }
 
-export const crearCliente = async (req, res) => {
-    const { nombres, apellidos, ci, complemento_ci,telefono, correo } = req.body
+/* export const crearCliente = async (req, res) => {
+    // 1. ya funcionaba
+    const { nombres, apellidos, ci, complemento_ci,telefono, correo} = req.body
     const { data, error } = await supabase
         .from('clientes')
         .insert([{ nombres, apellidos, ci,complemento_ci, telefono, correo }])
@@ -21,7 +24,111 @@ export const crearCliente = async (req, res) => {
         .single()
     if (error) return res.status(400).json({ error: error.message })
     res.json(data)
+} */
+// 1. Crear Cliente y su Usuario asociado
+export const crearCliente = async (req, res) => {
+    try {
+        const { nombres, apellidos, ci, complemento_ci, telefono, correo, contrasena } = req.body
+
+        // Validar si ya existe cliente con ese CI
+        const { data: clienteExistente } = await supabase
+            .from('clientes')
+            .select('id_cliente')
+            .eq('ci', ci)
+            .maybeSingle()
+
+        if (clienteExistente) {
+            return res.status(400).json({ error: 'Ya existe un cliente con ese CI' })
+        }
+
+        // Generar y hashear contraseña
+        const passwordFinal = contrasena?.trim() ? contrasena : `${ci}nutrias`
+        const hashed = await bcrypt.hash(passwordFinal, 10)
+
+        console.log('🧪 supabase definido:', typeof supabase === 'object')
+        console.log('🧪 Intentando crear usuario...')
+        // Crear usuario
+        const { data: nuevoUsuario, error: errorUsuario } = await supabase
+            .from('usuarios')
+            .insert([{
+                nombre: `${nombres} ${apellidos}`,
+                correo,
+                telefono,
+                contrasena: hashed,
+                id_rol: 3,
+            }])
+            .select('id')
+            .single()
+
+        if (errorUsuario) {
+            console.error('❌ Error al crear usuario:', errorUsuario)
+            return res.status(500).json({ error: 'Error al crear el usuario' })
+        }
+
+        // Crear cliente vinculado
+        /* const { data: nuevoCliente, error: errorCliente } = await supabase
+        console.log('🧪 Intentando crear cliente...')
+            .from('clientes')
+            .insert([{
+                nombres,
+                apellidos,
+                ci,
+                complemento_ci,
+                telefono,
+                correo,
+                id_usuario: nuevoUsuario.id
+            }])
+            .select()
+            .single() */
+        const payloadCliente = {
+            nombres,
+            apellidos,
+            ci,
+            complemento_ci,
+            telefono,
+            correo,
+            id_usuario: nuevoUsuario.id,
+        }
+
+        console.log('[👀 Payload recibido en crearCliente]', payloadCliente)
+
+        const { data, error } = await supabase
+            .from('clientes')
+            .insert([payloadCliente])
+            .select()
+            .single()
+
+        /* if (errorCliente) {
+            console.error('❌ Error al crear cliente:', errorCliente)
+            return res.status(400).json({ error: errorCliente.message })
+        } */
+        if (error) {
+            console.error('❌ Error al crear cliente:', error)
+            return res.status(400).json({ error: error.message })
+        }
+
+
+        // Enviar credenciales por correo
+        try {
+            console.log('📤 Enviando correo...')
+            await enviarCredenciales(correo, `${nombres} ${apellidos}`, passwordFinal, 'cliente')
+            console.log('📤 Correo enviado correctamente a:', correo)
+        } catch (correoError) {
+            console.error('⚠️ Error al enviar email:', correoError.message)
+        }
+
+        /* res.json({ cliente: nuevoCliente, usuario: nuevoUsuario }) */
+        res.json({ cliente: data, usuario: nuevoUsuario })
+
+        
+    } catch (e) {
+        console.error('💥 Error inesperado en crearCliente:', e)
+        res.status(500).json({ error: 'Error inesperado del servidor' })
+    }
 }
+
+
+
 export const listarClientes = async (req, res) => {
     const { data, error } = await supabase.from('clientes').select('*')
     if (error) return res.status(500).json({ error: error.message })
@@ -35,22 +142,50 @@ export const obtenerClientePorId = async (req, res) => {
 }
 export const actualizarCliente = async (req, res) => {
     const { id } = req.params
-    const { nombres, apellidos, ci,complemento_ci, telefono, correo } = req.body
+    const { nombres, apellidos, ci, complemento_ci, telefono, correo } = req.body
     const { data, error } = await supabase
         .from('clientes')
-        .update({ nombres, apellidos, ci,complemento_ci, telefono, correo })
+        .update({ nombres, apellidos, ci, complemento_ci, telefono, correo })
         .eq('id_cliente', id)
         .select()
         .single()
     if (error) return res.status(400).json({ error: error.message })
     res.json(data)
 }
-export const eliminarCliente = async (req, res) => {
+/* export const eliminarCliente = async (req, res) => {
     const { id } = req.params
     const { error } = await supabase.from('clientes').delete().eq('id_cliente', id)
     if (error) return res.status(400).json({ error: error.message })
     res.json({ mensaje: 'Cliente eliminado' })
+} */
+
+// 2. Eliminar Cliente + su Usuario relacionado
+export const eliminarCliente = async (req, res) => {
+    const { id } = req.params
+
+    const { data: cliente } = await supabase
+        .from('clientes')
+        .select('id_usuario')
+        .eq('id_cliente', id)
+        .single()
+
+    // Eliminar el cliente
+    const { error: errorCliente } = await supabase
+        .from('clientes')
+        .delete()
+        .eq('id_cliente', id)
+
+    if (errorCliente) return res.status(400).json({ error: errorCliente.message })
+
+    // Si tiene usuario vinculado, eliminarlo también
+    if (cliente?.id_usuario) {
+        await supabase.from('usuarios').delete().eq('id', cliente.id_usuario)
+    }
+
+    res.json({ mensaje: 'Cliente y usuario eliminado correctamente' })
 }
+
+
 
 export const obtenerClientesPorReserva = async (req, res) => {
     const { id } = req.params
