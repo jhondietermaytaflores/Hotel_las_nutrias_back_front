@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { api } from '../servicios/api'
+
 
 function ModalUsuario({ visible, onClose, onSubmit, userEdit, soloRoles = null }) {
   const [form, setForm] = useState({
@@ -10,13 +12,23 @@ function ModalUsuario({ visible, onClose, onSubmit, userEdit, soloRoles = null }
   })
 
   const [roles, setRoles] = useState([])
+
   useEffect(() => {
     const cargarRoles = async () => {
-      const { data } = await api.get('/roles')
-      setRoles(data)
+      try {
+        const { data } = await api.get('/roles')
+        // Si soloRoles está definido (ej: ['administrador', 'camarero']), filtramos
+        const filtrados = soloRoles
+          ? data.filter(r => soloRoles.includes(r.nombre_rol))
+          : data
+        setRoles(filtrados)
+      } catch (err) {
+        console.error('Error al cargar roles:', err)
+      }
     }
+
     cargarRoles()
-  }, [])
+  }, [soloRoles])
 
   useEffect(() => {
     if (userEdit) {
@@ -36,29 +48,15 @@ function ModalUsuario({ visible, onClose, onSubmit, userEdit, soloRoles = null }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!userEdit && !form.contrasena) {
+    /* if (!userEdit && !form.contrasena) {
       alert("Contraseña requerida para nuevo usuario")
       return
-    }
+    } */
     onSubmit(form)
   }
 
   if (!visible) return null
 
-  /* useEffect(() => {
-    if (userEdit) setForm(userEdit)
-  }, [userEdit])
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit(form)
-  } */
-
-  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -68,16 +66,17 @@ function ModalUsuario({ visible, onClose, onSubmit, userEdit, soloRoles = null }
           <input name="nombre" value={form.nombre} onChange={handleChange} placeholder="Nombre" className="w-full border p-2 rounded" required />
           <input name="correo" value={form.correo} onChange={handleChange} placeholder="Correo" className="w-full border p-2 rounded" type="email" required />
           <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="Teléfono" className="w-full border p-2 rounded" required />
-          <input name="contrasena" value={form.contrasena} onChange={handleChange} placeholder="Contraseña" className="w-full border p-2 rounded" type="password" required />
+
+          <input name="contrasena" value={form.contrasena} 
+          onChange={handleChange} placeholder="Contraseña (opcional)" 
+          className="w-full border p-2 rounded" 
+          type="password"  />
+
           <select name="id_rol" value={form.id_rol} onChange={handleChange} className="w-full border p-2 rounded" required>
             <option value="">Seleccione rol</option>      
-            {roles
-              .filter(r => !soloRoles || soloRoles.includes(r.nombre_rol))
-              .map(r => (
-                <option key={r.id_rol} value={r.id_rol}>
-                  {r.nombre_rol}
-                </option>
-              ))}
+            {roles.map((r) => (
+              <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>
+            ))}
 
           </select>
           <div className="flex justify-end gap-2 mt-4">
@@ -89,6 +88,5 @@ function ModalUsuario({ visible, onClose, onSubmit, userEdit, soloRoles = null }
     </div>
   )
 }
-
 
 export default ModalUsuario

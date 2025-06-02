@@ -45,7 +45,7 @@ function Sidebar()
         <Link to="/admin/reservas" className="hover:underline">Reservas</Link>
         <Link to="/admin/pedidos" className="hover:underline">Pedidos</Link>
         <Link to="/admin/productos" className="hover:underline">Productos</Link>
-        <Link to="/admin/usuarios" className="hover:underline">Usuarios</Link>
+        
 
         
         {/* Submenú Usuarios */}
@@ -64,8 +64,8 @@ function Sidebar()
             hoverUsuarios ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
           )}
         >
-          <Link to="/admin/usuarios-clientes" className="hover:underline">Clientes</Link>
-          <Link to="/admin/usuarios-empleados" className="hover:underline">Empleados</Link>
+          <Link to="/admin/usuarios-clientes" className="hover:underline">Gestion de Clientes</Link>
+          <Link to="/admin/usuarios-empleados" className="hover:underline">Gestion de Empleados</Link>
         </div>
       </div>
 

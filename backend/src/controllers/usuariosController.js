@@ -1,4 +1,7 @@
 import { supabase } from '../config/supabase.js'
+//import bcrypt from 'bcrypt'
+import { enviarCredenciales } from '../services/emailService.js'
+import { registrarUsuarioAuth } from '../utils/registrarEnAuth.js'
 
 export const listarUsuarios = async (req, res) => {
   const { data, error } = await supabase
@@ -11,19 +14,72 @@ export const listarUsuarios = async (req, res) => {
 
 
 //crud
+
 export const crearUsuario = async (req, res) => {
-  const { nombre, correo, contrasena, telefono, id_rol } = req.body
+  try {
+    const { nombre, correo, contrasena, telefono, id_rol } = req.body
 
-  const { data, error } = await supabase.from('usuarios').insert([{
-    nombre,
-    correo,
-    contrasena,
-    telefono,
-    id_rol 
-  }])
+    //validacion si hay correo ya registrado en las tablas de 'usuarios'
+    const { data: usuarioExistente } = await supabase
+      .from('usuarios')
+      .select('id')
+      .eq('correo', correo)
+      .maybeSingle()
+    if (usuarioExistente) {
+      return res.status(400).json({ error: 'Ya existe un usuario con ese correo' })
+    }
+    //validacion si hay correo ya registrado en las tablas de 'auth.users'
+    const { data: authUsuarioExistente } = await supabase
+      .from('auth.users')
+      .select('id')
+      .eq('email', correo)
+      .maybeSingle()
+    if (authUsuarioExistente) {
+      return res.status(400).json({ error: 'Ya existe un usuario con ese correo en el sistema de autenticación' })
+    }
 
-  if (error) return res.status(400).json({ error: error.message })
-  res.json(data)
+    // Validación básica
+    if (!nombre || !correo || !telefono || !id_rol) {
+      return res.status(400).json({ error: 'Faltan campos obligatorios' })
+    }
+
+    // Contraseña por defecto si no viene
+    const passwordFinal = contrasena?.trim() ? contrasena : `${telefono}nutrias`
+
+    // 1. Crear usuario en auth.users
+    const auth_id = await registrarUsuarioAuth(correo, passwordFinal)
+
+
+    //const hashed = await bcrypt.hash(passwordFinal, 10)
+
+    const { data, error } = await supabase.from('usuarios').insert([{
+      nombre,
+      correo,
+      telefono,
+      contrasena: null, // 👈 CAMBIADO: no guardamos la contraseña en la tabla 'usuarios'  , porque lo guardaremos en auth.users
+      id_rol,
+      auth_id // 👈 CAMBIADO: ahora guardamos el auth_id
+    }]).select('id').single()
+
+    if (error) {
+      console.error('❌ Error al crear usuario:', error)
+      return res.status(500).json({ error: 'No se pudo crear el usuario' })
+    }
+
+    // Enviar correo
+    try {
+      console.log('📧 Enviando correo...')
+      await enviarCredenciales(correo, nombre, passwordFinal, 'empleado')
+      console.log(`📩 Email enviado a ${correo}`)
+    } catch (e) {
+      console.error('⚠️ Error al enviar correo:', e.message)
+    }
+
+    res.json({ mensaje: 'Empleado creado correctamente', usuario: data })
+  } catch (err) {
+    console.error('💥 Error inesperado:', err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
 }
 
 export const actualizarUsuario = async (req, res) => {
@@ -36,19 +92,68 @@ export const actualizarUsuario = async (req, res) => {
     contrasena,
     telefono,
     id_rol
-  }).eq('id_usuario', id)
+  }).eq('id', id)
 
   if (error) return res.status(400).json({ error: error.message })
   res.json(data)
 }
-
+/* 
 export const eliminarUsuario = async (req, res) => {
   const { id } = req.params
 
-  const { error } = await supabase.from('usuarios').delete().eq('id_usuario', id)
+  const { error } = await supabase
+    .from('usuarios')
+    .delete()
+    .eq('id', id) // 👈 CAMBIADO: era 'id_usuario'
+
   if (error) return res.status(400).json({ error: error.message })
+
   res.json({ mensaje: 'Usuario eliminado' })
-}
+} */
+
+  export const eliminarUsuario = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // 1. Obtener auth_id del usuario que vamos a eliminar
+    const { data: usuario, error: fetchError } = await supabase
+      .from('usuarios')
+      .select('auth_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const { auth_id } = usuario;
+
+    // 2. Eliminar usuario en Supabase Auth (auth.users)
+    if (auth_id) {
+      const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(auth_id);
+      if (deleteAuthError) {
+        console.warn('⚠️ No se pudo eliminar el usuario en auth:', deleteAuthError.message);
+        // Puedes decidir si esto debe detener el proceso o no
+      }
+    }
+
+    // 3. Eliminar de la tabla local 'usuarios'
+    const { error: deleteError } = await supabase
+      .from('usuarios')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      return res.status(400).json({ error: deleteError.message });
+    }
+
+    res.json({ mensaje: 'Usuario eliminado correctamente' });
+  } catch (err) {
+    console.error('💥 Error al eliminar usuario:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
 
 export const obtenerUsuarioPorId = async (req, res) => {
   const { id } = req.params
@@ -56,7 +161,7 @@ export const obtenerUsuarioPorId = async (req, res) => {
   const { data, error } = await supabase
     .from('usuarios')
     .select('*, roles(nombre_rol)')
-    .eq('id_usuario', id)
+    .eq('id', id)
     .single()
 
   if (error) return res.status(404).json({ error: 'Usuario no encontrado' })
