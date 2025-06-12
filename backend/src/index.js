@@ -24,13 +24,14 @@ import clientesRoutes from './routes/clientes.js'
 
 
 
+
 dotenv.config()
 
 const app = express()
 
 //app.use(cors())
 app.use(cors({
-  origin: 'http://localhost:5173',  // mismo puerto donde corre tu frontend
+  origin: 'http://localhost:5173',  
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],  
 }));
@@ -55,6 +56,12 @@ app.use('/api/inventario-sector', inventarioSectorRoutes)
 app.use('/api/clientes', clientesRoutes)
 
 app.use('/api/roles', rolesRoutes)
+
+
+
+
+app.use(usuariosRoutes)
+
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`))

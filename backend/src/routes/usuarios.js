@@ -2,7 +2,7 @@ import express from 'express'
 import { listarUsuarios,
         crearUsuario,
         actualizarUsuario,obtenerUsuarioPorId,
-        eliminarUsuario
+        eliminarUsuario, guardarDescriptor ,getUsuariosConDescriptor
  } from '../controllers/usuariosController.js'
 
 
@@ -17,6 +17,9 @@ router.put('/:id', actualizarUsuario)
 router.get('/:id', obtenerUsuarioPorId)
 router.delete('/:id', eliminarUsuario)
 
+router.post('/:id/descriptor', guardarDescriptor)
+
+router.get('/con-descriptor', getUsuariosConDescriptor)
 
 
 

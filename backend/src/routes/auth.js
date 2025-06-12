@@ -1,11 +1,14 @@
 import express from 'express'
-import { login, registrar } from '../controllers/authController.js'
+import { login, registrar ,loginFacial } from '../controllers/authController.js'
 
 const router = express.Router()
 
 router.post('/login', login)
 router.post('/registro', registrar)
 
+
+
+router.post('/login-facial', loginFacial)
 
 export default router
 
