@@ -111,7 +111,7 @@ export const eliminarUsuario = async (req, res) => {
   res.json({ mensaje: 'Usuario eliminado' })
 } */
 
-  export const eliminarUsuario = async (req, res) => {
+export const eliminarUsuario = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -166,4 +166,54 @@ export const obtenerUsuarioPorId = async (req, res) => {
 
   if (error) return res.status(404).json({ error: 'Usuario no encontrado' })
   res.json(data)
+}
+
+
+
+
+// POST /api/usuarios/:id/descriptor
+export const guardarDescriptor = async (req, res) => {
+  const { id } = req.params
+  const { descriptor } = req.body  // array de floats length 128
+
+  console.log('ID recibido:', id)
+  console.log('Descriptor recibido (primeros 5):', descriptor?.slice?.(0, 5))
+  try {
+    // Aquí usas tu Supabase o tu ORM para actualizar la tabla:
+    // UPDATE usuarios SET face_descriptor = descriptor WHERE id = id
+    //await supabase
+    const { data, error } = await supabase  
+      .from('usuarios')
+      .update({ face_descriptor: descriptor })
+      .eq('id', id)
+      .select()
+
+    if (error) throw error
+    if (data.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
+
+    console.log('Descriptor guardado correctamente para el usuario con ID:', id)
+
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ error: 'No se pudo guardar descriptor' })
+  }
+}
+
+
+export const getUsuariosConDescriptor = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('id, nombre, face_descriptor')
+
+    if (error) throw error
+
+    return res.json(data)
+  } catch (err) {
+    console.error('Error al obtener usuarios:', err)
+    return res.status(500).json({ error: 'Error al obtener usuarios con descriptores' })
+  }
 }

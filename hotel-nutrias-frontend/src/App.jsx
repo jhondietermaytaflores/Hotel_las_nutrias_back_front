@@ -22,11 +22,13 @@ import CatalogoHabitaciones from './paginas/dashboard/CatalogoHabitaciones'
 import UsuariosClientesAdmin from './paginas/dashboard/UsuariosClientesAdmin'
 import UsuariosEmpleadosAdmin from './paginas/dashboard/UsuariosEmpleadosAdmin'
 
-
+//import FaceLogin from './paginas/empleados/FaceLogin'
 
 import NoAutorizado from './paginas/NoAutorizado'
 
 import { RutaAdmin, RutaCliente } from './rutas/RutasProtegidas'
+import FaceLoginDescriptors from './paginas/empleados/FaceLoginDescriptors'
+import FaceRegistrationDescriptors from './paginas/empleados/FaceRegistrationDescriptors'
 
 
 function App() {
@@ -79,6 +81,11 @@ function App() {
           <Route path="/admin/usuarios-clientes" element={<DashboardLayout><UsuariosClientesAdmin /></DashboardLayout>} />
           <Route path="/admin/usuarios-empleados" element={<DashboardLayout><UsuariosEmpleadosAdmin /></DashboardLayout>} />
 
+          {/* <Route path="/login-rostro" element={<FaceLogin />} /> */}
+
+          <Route path="/FaceLoginDescriptor" element={<FaceLoginDescriptors/>}   />
+
+          <Route path="/FaceRegistrationDescriptors" element={<FaceRegistrationDescriptors/>}   />
 
         </Routes>
       </AuthProvider>
