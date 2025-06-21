@@ -2,12 +2,13 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import clsx from 'clsx'
 
-function Sidebar()
-{
+function Sidebar() {
   const [hoverHabitaciones, setHoverHabitaciones] = useState(false)
-    const [hoverInventario, setHoverInventario] = useState(false)
+  const [hoverInventario, setHoverInventario] = useState(false)
 
-      const [hoverUsuarios, setHoverUsuarios] = useState(false)
+  const [hoverUsuarios, setHoverUsuarios] = useState(false)
+
+  const [hoverTareas, setHoverTareas] = useState(false)
 
   return (
     <aside className="w-64 bg-blue-900 text-white flex flex-col p-4">
@@ -34,40 +35,40 @@ function Sidebar()
             <Link to="/admin/habitaciones" className="hover:underline">Gestion de Habitaciones</Link>
 
             <Link to="/admin/catalogo-habitaciones" className="hover:underline">Catálogo de Habitaciones</Link>
-            
+
           </div>
         </div>
 
-        
+
 
 
 
         <Link to="/admin/reservas" className="hover:underline">Reservas</Link>
         <Link to="/admin/pedidos" className="hover:underline">Pedidos</Link>
         <Link to="/admin/productos" className="hover:underline">Productos</Link>
-        
 
-        
+
+
         {/* Submenú Usuarios */}
-      <div
-        onMouseEnter={() => setHoverUsuarios(true)}
-        onMouseLeave={() => setHoverUsuarios(false)}
-        className="relative"
-      >
-        <div className="flex items-center justify-between cursor-pointer hover:underline">
-          <span>Usuarios</span>
-          <span>{hoverUsuarios ? '▴' : '▾'}</span>
-        </div>
         <div
-          className={clsx(
-            "ml-4 mt-1 flex flex-col gap-2 text-sm overflow-hidden transition-all duration-300",
-            hoverUsuarios ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-          )}
+          onMouseEnter={() => setHoverUsuarios(true)}
+          onMouseLeave={() => setHoverUsuarios(false)}
+          className="relative"
         >
-          <Link to="/admin/usuarios-clientes" className="hover:underline">Gestion de Clientes</Link>
-          <Link to="/admin/usuarios-empleados" className="hover:underline">Gestion de Empleados</Link>
+          <div className="flex items-center justify-between cursor-pointer hover:underline">
+            <span>Usuarios</span>
+            <span>{hoverUsuarios ? '▴' : '▾'}</span>
+          </div>
+          <div
+            className={clsx(
+              "ml-4 mt-1 flex flex-col gap-2 text-sm overflow-hidden transition-all duration-300",
+              hoverUsuarios ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            <Link to="/admin/usuarios-clientes" className="hover:underline">Gestion de Clientes</Link>
+            <Link to="/admin/usuarios-empleados" className="hover:underline">Gestion de Empleados</Link>
+          </div>
         </div>
-      </div>
 
 
 
@@ -108,6 +109,26 @@ function Sidebar()
           </div>
         </div>
 
+        {/* Submenú gestion de tareas */}
+        <div
+          onMouseEnter={() => setHoverTareas(true)}
+          onMouseLeave={() => setHoverTareas(false)}
+          className="relative"
+        >
+          <div className="flex items-center justify-between cursor-pointer hover:underline">
+            <span>Gestion de Tareas</span>
+            <span>{hoverTareas ? '▴' : '▾'}</span>
+          </div>
+          <div
+            className={clsx(
+              "ml-4 mt-1 flex flex-col gap-2 text-sm overflow-hidden transition-all duration-300",
+              hoverTareas ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            <Link to="/tipos-tarea" className="hover:underline">Gestion de Tareas</Link>
+            <Link to="/asignaciones" className="hover:underline">Gestion de Asignaciones</Link>
+          </div>
+        </div>
 
         <Link to="/" className="text-red-300 mt-6">Cerrar sesión</Link>
       </nav>

@@ -16,12 +16,7 @@ function DashboardLayout({ children }) {
             <span className="text-sm text-gray-600">Bienvenido, </span>
             <span className="font-semibold text-blue-600">{usuario?.nombre}</span>
           </div>
-          <button
-            onClick={logout}
-            className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded shadow"
-          >
-            Cerrar sesión
-          </button>
+
         </div>
         <main className="flex-1 p-6 overflow-y-auto bg-gray-50">{children}</main>
       </div>

@@ -20,6 +20,10 @@ import rolesRoutes from './routes/roles.js'
 
 import clientesRoutes from './routes/clientes.js'
 
+import tiposTareaRoutes from './routes/tiposTarea.js'
+import asignacionesRoutes from './routes/asignaciones.js'
+
+
 
 
 
@@ -57,7 +61,8 @@ app.use('/api/clientes', clientesRoutes)
 
 app.use('/api/roles', rolesRoutes)
 
-
+app.use('/api/tipos_tarea', tiposTareaRoutes)
+app.use('/api/asignaciones', asignacionesRoutes)
 
 
 app.use(usuariosRoutes)
