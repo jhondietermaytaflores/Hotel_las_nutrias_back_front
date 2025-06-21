@@ -65,9 +65,9 @@ function UsuariosEmpleadosAdmin() {
                     <thead className="bg-gray-100">
                         <tr>
                             <th className="p-2 text-left">Nombre</th>
-                            <th>Correo</th>
-                            <th>Teléfono</th>
-                            <th>Rol</th>
+                            <th className='text-left'>Correo</th>
+                            <th className='text-left' >Teléfono</th>
+                            <th className='text-left'>Rol</th>
                             <th className="text-center">Acciones</th>
                         </tr>
                     </thead>

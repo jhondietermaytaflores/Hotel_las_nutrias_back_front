@@ -217,3 +217,19 @@ export const getUsuariosConDescriptor = async (req, res) => {
     return res.status(500).json({ error: 'Error al obtener usuarios con descriptores' })
   }
 }
+
+// filtrar empleados
+export const obtenerEmpleados = async (req, res) => {
+    const { data, error } = await supabase
+        .from('usuarios')
+        .select(`
+            *,
+            rol:roles (
+                nombre_rol
+            )
+        `)
+        .neq('id_rol', 3) // excluir clientes
+
+    if (error) return res.status(500).json({ error: error.message })
+    res.json(data)
+}

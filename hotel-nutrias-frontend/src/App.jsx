@@ -30,6 +30,8 @@ import { RutaAdmin, RutaCliente } from './rutas/RutasProtegidas'
 import FaceLoginDescriptors from './paginas/empleados/FaceLoginDescriptors'
 import FaceRegistrationDescriptors from './paginas/empleados/FaceRegistrationDescriptors'
 
+import AsignacionesAdmin from './paginas/dashboard/AsignacionesAdmin'
+import TiposTareaAdmin from './paginas/dashboard/TiposTareaAdmin'
 
 function App() {
   return (
@@ -73,6 +75,12 @@ function App() {
             <RutaAdmin><DashboardLayout><InventarioAdmin /></DashboardLayout></RutaAdmin>
           } />
 
+          <Route path="/tipos-tarea" element={<DashboardLayout> <TiposTareaAdmin /> </DashboardLayout>} />
+
+
+          <Route path="/asignaciones" element={<DashboardLayout> <AsignacionesAdmin /> </DashboardLayout>} />
+
+
           <Route path="/admin/inventarioHabitacion" element={<DashboardLayout><InventarioHabitacion /></DashboardLayout>} />
           <Route path="/admin/inventarioSector" element={<DashboardLayout><InventarioSector /></DashboardLayout>} />
 
@@ -83,9 +91,9 @@ function App() {
 
           {/* <Route path="/login-rostro" element={<FaceLogin />} /> */}
 
-          <Route path="/FaceLoginDescriptor" element={<FaceLoginDescriptors/>}   />
+          <Route path="/FaceLoginDescriptor" element={<FaceLoginDescriptors />} />
 
-          <Route path="/FaceRegistrationDescriptors" element={<FaceRegistrationDescriptors/>}   />
+          <Route path="/FaceRegistrationDescriptors" element={<FaceRegistrationDescriptors />} />
 
         </Routes>
       </AuthProvider>
