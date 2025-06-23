@@ -105,7 +105,7 @@ function FormularioProducto({ onGuardar, producto, cancelar }) {
         placeholder="Nombre"
         value={form.nombre}
         onChange={handleChange}
-        className="border p-2 rounded"
+        className="border p-2 rounded text-black"
         required
       />
       <input
@@ -114,7 +114,7 @@ function FormularioProducto({ onGuardar, producto, cancelar }) {
         placeholder="Precio"
         value={form.precio}
         onChange={handleChange}
-        className="border p-2 rounded"
+        className="border p-2 rounded text-black"
         required
       />
       <input
@@ -123,7 +123,7 @@ function FormularioProducto({ onGuardar, producto, cancelar }) {
         placeholder="Categoría"
         value={form.categoria}
         onChange={handleChange}
-        className="border p-2 rounded"
+        className="border p-2 rounded text-black"
       />
       <input
         type="number"
@@ -131,7 +131,7 @@ function FormularioProducto({ onGuardar, producto, cancelar }) {
         placeholder="Stock"
         value={form.stock}
         onChange={handleChange}
-        className="border p-2 rounded"
+        className="border p-2 rounded text-black"
       />
       <input
         type="text"
@@ -139,14 +139,14 @@ function FormularioProducto({ onGuardar, producto, cancelar }) {
         placeholder="URL de imagen"
         value={form.imagen_url}
         onChange={handleChange}
-        className="border p-2 rounded"
+        className="border p-2 rounded text-black"
       />
 
       <input
         type="file"
         accept="image/*"
         onChange={handleImagen}
-        className="border p-2 rounded"
+        className="border p-2 rounded text-black"
         required={!form.imagen_url}
       />
 
@@ -160,7 +160,7 @@ function FormularioProducto({ onGuardar, producto, cancelar }) {
         placeholder="Descripción"
         value={form.descripcion}
         onChange={handleChange}
-        className="border p-2 rounded col-span-1 md:col-span-2"
+        className="border p-2 rounded col-span-1 md:col-span-2 text-black"
       />
       <div className="flex gap-4 col-span-1 md:col-span-2">
         <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">

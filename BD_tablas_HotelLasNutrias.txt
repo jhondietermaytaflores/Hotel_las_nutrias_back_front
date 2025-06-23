@@ -1,0 +1,261 @@
+-- =====================================
+-- ROLES
+-- =====================================
+CREATE TABLE roles (
+  id_rol SERIAL PRIMARY KEY,
+  nombre_rol VARCHAR(50) UNIQUE NOT NULL
+);
+
+-- =====================================
+-- USUARIOS DEL SISTEMA
+-- =====================================
+CREATE TABLE usuarios (
+  id SERIAL PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  correo TEXT NOT NULL UNIQUE,
+  foto_url TEXT,
+  contrasena TEXT NOT NULL,
+  telefono TEXT NOT NULL,
+  id_rol INT REFERENCES roles(id_rol) ON DELETE RESTRICT,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  -- columna para la autenticacion con auth id
+  auth_id uuid ,
+  -- columna para el reconocimiento facial
+  face_descriptor float8 NOT NULL
+);
+
+-- =====================================
+-- CLIENTES
+-- =====================================
+CREATE TABLE clientes (
+  id_cliente SERIAL PRIMARY KEY,
+  ci VARCHAR(20) NOT NULL,
+  complemento_ci VARCHAR(5),
+  nombres VARCHAR(50) NOT NULL,
+  apellidos VARCHAR(50) NOT NULL,
+  correo VARCHAR(100),
+  telefono VARCHAR(20),
+  id_usuario INT UNIQUE REFERENCES usuarios(id) ON DELETE SET NULL,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- PISOS
+-- =====================================
+CREATE TABLE pisos (
+  id_piso SERIAL PRIMARY KEY,
+  nombre_piso VARCHAR(30) NOT NULL,
+  estado CHAR(1) DEFAULT '1',
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- CATEGORÍAS DE HABITACIÓN
+-- =====================================
+CREATE TABLE categorias_habitacion (
+  id_categoria SERIAL PRIMARY KEY,
+  nombre_categoria VARCHAR(50) NOT NULL,
+  estado CHAR(1) DEFAULT '1',
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- HABITACIONES
+-- =====================================
+CREATE TABLE habitaciones (
+  id_habitacion SERIAL PRIMARY KEY,
+  numero VARCHAR(10) NOT NULL,
+  descripcion TEXT,
+  precio DECIMAL(10, 2) NOT NULL,
+  id_piso INT NOT NULL REFERENCES pisos(id_piso),
+  id_categoria INT NOT NULL REFERENCES categorias_habitacion(id_categoria),
+  estado TEXT DEFAULT 'libre', -- libre, ocupada, limpieza, mantenimiento
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- CATEGORÍAS DE PRODUCTOS
+-- =====================================
+CREATE TABLE categorias_producto (
+  id_categoria SERIAL PRIMARY KEY,
+  nombre_categoria TEXT NOT NULL,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- PRODUCTOS
+-- =====================================
+CREATE TABLE productos (
+  id SERIAL PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  descripcion TEXT NOT NULL,
+  precio DOUBLE PRECISION NOT NULL,
+  stock INT NOT NULL,
+  categoria TEXT NOT NULL,
+  imagen_url TEXT NOT NULL,
+  activo BOOLEAN DEFAULT TRUE,
+  id_categoria INT REFERENCES categorias_producto(id_categoria)
+);
+
+-- =====================================
+-- CATEGORÍAS DE SERVICIOS
+-- =====================================
+CREATE TABLE categorias_servicio (
+  id_categoria SERIAL PRIMARY KEY,
+  nombre_categoria TEXT NOT NULL,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- SERVICIOS
+-- =====================================
+CREATE TABLE servicios (
+  id SERIAL PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  descripcion TEXT NOT NULL,
+  precio DOUBLE PRECISION NOT NULL,
+  disponibilidad BOOLEAN DEFAULT TRUE,
+  categoria TEXT NOT NULL,
+  imagen_url TEXT NOT NULL,
+  id_categoria INT REFERENCES categorias_servicio(id_categoria)
+);
+
+-- =====================================
+-- PEDIDOS
+-- =====================================
+CREATE TABLE pedidos (
+  id_pedido SERIAL PRIMARY KEY,
+  usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+  cliente_id INT REFERENCES clientes(id_cliente) ON DELETE CASCADE,
+  total DECIMAL(10,2) NOT NULL,
+  estado TEXT DEFAULT 'pendiente', -- pendiente, por entregar, entregado, cancelado
+  metodo_pago TEXT,
+  tipo_comprobante TEXT,
+  fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- DETALLE DE PEDIDO
+-- =====================================
+CREATE TABLE detalle_pedido (
+  id_detalle SERIAL PRIMARY KEY,
+  pedido_id INT REFERENCES pedidos(id_pedido) ON DELETE CASCADE,
+  producto_id INT REFERENCES productos(id) ON DELETE SET NULL,
+  cantidad INT NOT NULL,
+  precio_unitario DECIMAL(10,2) NOT NULL,
+  subtotal DECIMAL(10,2) GENERATED ALWAYS AS (cantidad * precio_unitario) STORED
+);
+
+-- =====================================
+-- HISTORIAL DE PEDIDOS
+-- =====================================
+CREATE TABLE historial_pedidos (
+  id_historial SERIAL PRIMARY KEY,
+  pedido_id INT REFERENCES pedidos(id_pedido) ON DELETE CASCADE,
+  usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+  estado_anterior TEXT NOT NULL,
+  estado_nuevo TEXT NOT NULL,
+  fecha_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  observaciones TEXT
+);
+
+-- =====================================
+-- CARRITO
+-- =====================================
+CREATE TABLE carrito (
+  id_carrito SERIAL PRIMARY KEY,
+  usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+  producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+  cantidad INT DEFAULT 1,
+  fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- RESERVAS
+-- =====================================
+CREATE TABLE reservas (
+  id SERIAL PRIMARY KEY,
+  cliente_id INT REFERENCES clientes(id_cliente) ON DELETE CASCADE,
+  habitacion_id INT REFERENCES habitaciones(id_habitacion) ON DELETE SET NULL,
+  fecha_entrada DATE NOT NULL,
+  fecha_salida DATE NOT NULL,
+  estado TEXT DEFAULT 'reservado', -- reservado, ocupado, finalizado, cancelado
+  observaciones TEXT,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- NOTIFICACIONES
+-- =====================================
+CREATE TABLE notificaciones (
+  id SERIAL PRIMARY KEY,
+  usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+  reserva_id INT REFERENCES reservas(id) ON DELETE SET NULL,
+  pedido_id INT REFERENCES pedidos(id_pedido) ON DELETE SET NULL,
+  mensaje TEXT NOT NULL,
+  leido BOOLEAN DEFAULT FALSE,
+  fecha_envio TIMESTAMP DEFAULT NOW()
+);
+
+-- =====================================
+-- INVENTARIO GENERAL
+-- =====================================
+CREATE TABLE tipos_inventario (
+  id_tipo SERIAL PRIMARY KEY,
+  nombre_tipo TEXT NOT NULL
+);
+
+CREATE TABLE inventario (
+  id_inventario SERIAL PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  descripcion TEXT,
+  cantidad INT NOT NULL,
+  unidad_medida TEXT,
+  id_tipo INT REFERENCES tipos_inventario(id_tipo),
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Inventario por habitación
+CREATE TABLE inventario_habitacion (
+  id SERIAL PRIMARY KEY,
+  habitacion_id INT REFERENCES habitaciones(id_habitacion) ON DELETE CASCADE,
+  inventario_id INT REFERENCES inventario(id_inventario) ON DELETE CASCADE,
+  cantidad INT NOT NULL,
+  estado TEXT DEFAULT 'en uso', -- en uso, dañado, mantenimiento
+  
+ creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
+
+-- Inventario por sector (cocina, lavandería, etc.)
+CREATE TABLE inventario_sector (
+  id SERIAL PRIMARY KEY,
+  nombre_sector TEXT NOT NULL,
+  inventario_id INT REFERENCES inventario(id_inventario),
+  cantidad INT NOT NULL,
+  observacion TEXT
+);
+
+-- =====================================
+-- ASIGNACIÓN DE LABORES
+-- =====================================
+CREATE TABLE tipos_tarea (
+  id_tarea SERIAL PRIMARY KEY,
+  nombre_tarea TEXT NOT NULL,
+  --new
+  descripcion TEXT
+);
+
+CREATE TABLE asignaciones (
+  id_asignacion SERIAL PRIMARY KEY,
+  usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+  tarea_id INT REFERENCES tipos_tarea(id_tarea),
+  descripcion TEXT,
+  fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  estado TEXT DEFAULT 'pendiente' -- pendiente, en proceso, completada
+);
+
+
+

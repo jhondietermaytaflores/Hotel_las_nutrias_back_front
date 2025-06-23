@@ -48,7 +48,7 @@ function ProductosAdmin() {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800">Gestión de Productos</h2>
+            <h2 className="text-2xl font-bold text-white">Gestión de Productos</h2>
 
             <FormularioProducto
                 onGuardar={guardarProducto}

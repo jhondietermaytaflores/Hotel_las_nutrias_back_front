@@ -53,7 +53,7 @@ export default function TiposTareaAdmin() {
                 <input
                     type="text"
                     placeholder="Nombre de tarea"
-                    className="border p-2 flex-1"
+                    className="border p-2 flex-1 dark:bg-[#2d3748] dark:text-white"
                     value={nombreTarea}
                     onChange={(e) => setNombreTarea(e.target.value)}
                 />
@@ -62,20 +62,20 @@ export default function TiposTareaAdmin() {
                 </button>
             </div>
 
-            <table className="min-w-full border">
+            <table className="min-w-full border ">
                 <thead>
                     <tr className="bg-gray-100">
-                        <th className="p-2 border">ID</th>
-                        <th className="p-2 border">Nombre</th>
-                        <th className="p-2 border">Acciones</th>
+                        <th className="p-2 border dark:text-white dark:bg-[#1a202c]">ID</th>
+                        <th className="p-2 border dark:text-white dark:bg-[#1a202c]">Nombre</th>
+                        <th className="p-2 border dark:text-white dark:bg-[#1a202c]">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className='dark:bg-[#2d3748] text-white'>
                     {tareas.map(t => (
                         <tr key={t.id_tarea}>
                             <td className="p-2 border">{t.id_tarea}</td>
                             <td className="p-2 border">{t.nombre_tarea}</td>
-                            <td className="p-2 border flex gap-2">
+                            <td className="p-2 border flex gap-2 justify-center">
                                 <button onClick={() => cargarTarea(t)} className="bg-yellow-500 text-white px-2 rounded">Editar</button>
                                 <button onClick={() => eliminarTarea(t.id_tarea)} className="bg-red-500 text-white px-2 rounded">Eliminar</button>
                             </td>

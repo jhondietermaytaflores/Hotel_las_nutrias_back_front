@@ -2,7 +2,7 @@ function ListaProductos({ productos, onEditar, onEliminar }) {
   return (
     <div className="overflow-x-auto bg-white rounded shadow">
       <table className="min-w-full text-sm">
-        <thead className="bg-gray-100 text-gray-700">
+        <thead className="dark:bg-[#143c43] text-white">
           <tr>
             <th className="p-2 text-left">Imagen</th>
             <th className="p-2 text-left">Nombre</th>
@@ -13,7 +13,7 @@ function ListaProductos({ productos, onEditar, onEliminar }) {
 
           </tr>
         </thead>
-        <tbody>
+        <tbody className="dark:bg-[#246a76] text-white">
           {productos.map((p) => (
             <tr key={p.id} className="border-t hover:bg-gray-50">
                 <td className="p-2">

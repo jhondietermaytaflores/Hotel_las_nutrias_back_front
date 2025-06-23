@@ -52,7 +52,12 @@ export const enviarCredenciales = async (to, nombre, contrasena, rol = 'usuario'
       </div>
     `
     }
-    //ya Funcionaba
+    
+
+    return transporter.sendMail(mailOptions)
+}
+
+//ya Funcionaba
     /* export const enviarCredenciales = async (to, nombre, contrasena) => {
         const mailOptions = {
             from: `"Hotel Las Nutrias" <${process.env.EMAIL_USER}>`,
@@ -87,6 +92,3 @@ export const enviarCredenciales = async (to, nombre, contrasena, rol = 'usuario'
           </div>
         `
         } */
-
-    return transporter.sendMail(mailOptions)
-}

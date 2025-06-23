@@ -56,20 +56,34 @@ export const crearUsuario = async (req, res) => {
       nombre,
       correo,
       telefono,
-      contrasena: null, // 👈 CAMBIADO: no guardamos la contraseña en la tabla 'usuarios'  , porque lo guardaremos en auth.users
+      contrasena: null, //CAMBIADO: no guardamos la contraseña en la tabla 'usuarios',porque lo guardaremos en auth.users
       id_rol,
-      auth_id // 👈 CAMBIADO: ahora guardamos el auth_id
-    }]).select('id').single()
+      auth_id //  CAMBIADO: ahora guardamos el auth_id
+    }]).select('id, id_rol').single() //agregamos select para obtener el id_rol para el JOIN posterior
 
     if (error) {
       console.error('❌ Error al crear usuario:', error)
       return res.status(500).json({ error: 'No se pudo crear el usuario' })
     }
 
+    // Aquí realizamos el 'JOIN' para obtener el nombre del rol junto con los datos del usuario
+    const { data: usuarioConRol, error: rolError } = await supabase
+      .from('roles')
+      .select('nombre_rol')
+      .eq('id_rol', data.id_rol)  // Usamos el id_rol que obtuvimos al insertar el usuario
+      .maybeSingle();
+
+    if (rolError) {
+      console.error('❌ Error al obtener el nombre del rol:', rolError);
+      return res.status(500).json({ error: 'No se pudo obtener el nombre del rol' });
+    }
+    const rolNombre = usuarioConRol?.nombre_rol || 'usuario desc'; // Si no hay rol, usaremos esto como valor por defecto
+
     // Enviar correo
     try {
       console.log('📧 Enviando correo...')
-      await enviarCredenciales(correo, nombre, passwordFinal, 'empleado')
+      //await enviarCredenciales(correo, nombre, passwordFinal, 'empleado')
+      await enviarCredenciales(correo, nombre, passwordFinal, rolNombre);
       console.log(`📩 Email enviado a ${correo}`)
     } catch (e) {
       console.error('⚠️ Error al enviar correo:', e.message)
