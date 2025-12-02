@@ -56,7 +56,7 @@ export const listarPedidos = async (req, res) => {
 }
  */
 
-export const listarPedidos = async (req, res) => {
+/* export const listarPedidos = async (req, res) => {
   const { data, error } = await supabase
     .from('pedidos')
     .select(`
@@ -87,6 +87,51 @@ export const listarPedidos = async (req, res) => {
     .order('fecha_pedido', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
+} */
+
+export const listarPedidos = async (req, res) => {
+  // SELECT puro, sin comentarios ni “//”
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select(`
+      id_pedido,
+      usuario_id,
+      cliente_id,
+      total,
+      estado,
+      fecha_pedido,
+      clientes:cliente_id (
+        id_cliente,
+        nombres,
+        apellidos,
+        correo
+      )
+    `)
+    .order('fecha_pedido', { ascending: false })
+
+  if (error) {
+    console.error('Error al listar pedidos:', error)
+    return res.status(500).json({ error: error.message })
+  }
+
+  // Mapeamos para enviar al front un campo "clienteNombre"
+  const pedidos = data.map(p => ({
+    id_pedido:    p.id_pedido,
+    total:        p.total,
+    estado:       p.estado,
+    fecha_pedido: p.fecha_pedido,
+    cliente_id:   p.cliente_id,
+    // Concatenamos nombres + apellidos
+    clienteNombre: p.clientes
+      ? `${p.clientes.nombres} ${p.clientes.apellidos}`
+      : '—',
+    // Opcional: si quieres compatibilidad con antiguo p.cliente.nombre
+    cliente: p.clientes
+      ? { nombre: `${p.clientes.nombres} ${p.clientes.apellidos}`, correo: p.clientes.correo }
+      : null
+  }))
+
+  return res.json(pedidos)
 }
 
 //seg

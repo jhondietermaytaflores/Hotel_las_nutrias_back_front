@@ -12,12 +12,11 @@ function Sidebar() {
   const [hoverTareas, setHoverTareas] = useState(false)
   const { theme } = useTheme();
 
-  // Definimos las variables de fondo y txt
   const bgBase = theme === 'light' ? 'bg-[#113c07] text-[#DBFF5E]' : 'bg-verdeOscuro-900 text-gray-200 ';
   const hoverUnderline = 'hover:underline';
 
   return (
-    <div dir='rtl' className='border-r-4 border-s-green-500 flex h-screen'>
+    <div dir='rtl' className='border-r-4 border-s-green-500 flex h-screen dark:bg-[#141414] !'>
 
       
 

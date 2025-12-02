@@ -3,18 +3,20 @@ import { api } from '../../servicios/api'
 import Swal from 'sweetalert2'
 import { FaClipboardCheck, FaClipboardList, FaShippingFast, FaCheck, FaTimes } from 'react-icons/fa'
 import dayjs from 'dayjs'
+import axios from 'axios'
+
 
 function PedidosAdmin() {
   const [pedidos, setPedidos] = useState([])
 
+  
   const cargarPedidos = async () => {
-    /* const { data } = await api.get('/pedidos')
-    setPedidos(data) */
     try {
-      const { data } = await api.get('/pedidos')
+      const { data } = await axios.get('http://localhost:3000/api/pedidos')
       setPedidos(data)
-    } catch (error) {
-      console.error('Error cargando pedidos:', error)
+    } catch (err) {
+      console.error('Error cargando pedidos:', err)
+      Swal.fire('Error', 'No se pudieron cargar los pedidos', 'error')
     }
   }
 
@@ -25,11 +27,7 @@ function PedidosAdmin() {
       confirmButtonText: 'Sí, confirmar',
     })
 
-    /* if (confirm.isConfirmed) {
-      await api.put(`/pedidos/${pedido.id_pedido}`, { estado: nuevoEstado })
-      Swal.fire('Actualizado', 'Estado del pedido modificado', 'success')
-      cargarPedidos()
-    } */
+    
 
     try {
       await api.put(`/pedidos/${pedido.id_pedido}`, { estado: nuevoEstado })
@@ -44,7 +42,7 @@ function PedidosAdmin() {
   const verDetalle = async (pedidoId) => {
     try {
       const { data } = await api.get(`/pedidos/${pedidoId}`)
-      // Construir HTML para Swal:
+      
       const cliente = data.cliente
       const usuario = data.usuario
       const fecha = dayjs(data.fecha_pedido).format('DD/MM/YYYY HH:mm')
@@ -123,7 +121,7 @@ function PedidosAdmin() {
                   {dayjs(p.fecha_pedido).format('DD/MM/YYYY')}
                 </td>
                 <td className="text-center p-3 space-x-2">
-                  {/* Ver detalle */}
+                  
                   <button
                     onClick={() => verDetalle(p.id_pedido)}
                     className="text-gray-600 hover:text-gray-800"
@@ -131,7 +129,7 @@ function PedidosAdmin() {
                   >
                     <FaClipboardList />
                   </button>
-                  {/* Cambiar estado según flujo */}
+                  
                   {p.estado === 'pendiente' && (
                     <button
                       onClick={() => cambiarEstado(p, 'por entregar')}
