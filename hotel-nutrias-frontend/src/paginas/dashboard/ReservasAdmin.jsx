@@ -44,7 +44,7 @@ function ReservasAdmin() {
       <div className="mb-4">
         <label className="mr-2 font-semibold">Filtrar por estado:</label>
         <select
-          className="border px-3 py-1 rounded"
+          className="border px-3 py-1 rounded dark:bg-[#143c43] text-white"
           value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
         >
@@ -58,7 +58,7 @@ function ReservasAdmin() {
 
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full text-left">
-          <thead className="bg-gray-200">
+          <thead className="dark:bg-[#143c43] text-white">
             <tr>
               <th className="p-3">Cliente</th>
               <th>Habitación</th>
@@ -69,7 +69,7 @@ function ReservasAdmin() {
               <th className="text-center">Acciones</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="dark:bg-[#246c79] text-white">
             {filtrarReservas().map((r) => (
               <tr key={r.id} className="border-t">
                 <td className="p-3">{r.cliente_id}</td>

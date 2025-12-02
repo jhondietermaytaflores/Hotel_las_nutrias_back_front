@@ -41,6 +41,89 @@ dev ← Rama de integración (testing / QA)(pruebas)
 
 ----------
 
+# ✅ Pasos para empezar para inicializar el proyecto 
+
+## 🧱 Paso 1: clonar o descargar el repositorio
+
+## 🧱 Paso 2: una ves en la carpeta contendra carpetas: {backend,  hotel-nutrias-frontend}
+
+Desde directorio `main o principal` dar:
+
+```bash
+# entramos a la carpeta backend y descargamos las dependencias
+cd backend
+npm install   # si da error verificar si tienes instalado Node.Js y/o npm
+
+# Verificar la versión de Node.js
+
+node -v
+
+# Para ver la versión de npm:
+
+npm -v
+-------------------------------
+# si no devuelve las versiones, instale Node.js 
+-------------------------------
+
+# hacer lo mismo para el frontend
+
+cd hotel-nutrias-frontend
+
+npm install
+
+```
+## 🧱 Paso 3: una ves teniendo las dependencias "node_modules"
+
+
+**`iniciamos con el levantado del backend y frontend`**
+
+```bash
+
+cd backend
+
+# iniciamos backend con:
+
+npm start
+
+---------------------------
+
+# para el frontend es recomendable abrir otra pestaña de terminal
+
+cd hotel-nutrias-frontend
+
+# y lo iniciamos con
+
+npm run dev
+
+# si no hubiera algun error tanto como backend y frontend estarian corriendo
+# por lo cual te tendrian que salir asi :
+
+Backend
+
+\Hotel_las_nutrias\backend> npm start
+
+> backend@1.0.0 start
+> node src/index.js
+
+Servidor corriendo en puerto 3000
+-------------------------------------------
+
+Frontend
+
+\Hotel_las_nutrias\hotel-nutrias-frontend> npm run dev
+
+> hotel-nutrias-frontend@0.0.0 dev
+> vite
+
+
+  VITE v6.3.5  ready in 672 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+
+```
+----------
+
 # ✅ ORDEN CORRECTO PARA CREAR Y TRABAJAR CON RAMAS EN MONOREPO
 
 ## 🧱 Paso 1: Crear las ramas base (en orden)

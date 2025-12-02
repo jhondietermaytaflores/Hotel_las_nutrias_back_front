@@ -3,7 +3,7 @@ function FiltroEstado({ estadoSeleccionado, onChange }) {
         <select
             value={estadoSeleccionado}
             onChange={(e) => onChange(e.target.value)}
-            className="border p-2 rounded text-sm"
+            className="border p-2 rounded text-sm  dark:text-white bg-white dark:bg-gray-800"
         >
             <option value="">Todos los estados</option>
             <option value="libre">Libre</option>

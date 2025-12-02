@@ -14,8 +14,16 @@ import tiposInventarioRoutes from './routes/tiposInventario.js'
 import inventarioHabitacionRoutes from './routes/inventarioHabitacion.js'
 import inventarioSectorRoutes from './routes/inventarioSector.js'
 
+import rolesRoutes from './routes/roles.js'
+
+
 
 import clientesRoutes from './routes/clientes.js'
+
+import tiposTareaRoutes from './routes/tiposTarea.js'
+import asignacionesRoutes from './routes/asignaciones.js'
+
+
 
 
 
@@ -27,12 +35,38 @@ const app = express()
 
 //app.use(cors())
 app.use(cors({
-  origin: 'http://localhost:5173',  // mismo puerto donde corre tu frontend
+  origin: 'http://localhost:5173',  
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],  
 }));
 
 app.use(express.json())
+
+// Incializar WebSocket
+
+/* const http = require('http');
+const socketIo = require('socket.io');
+const app = require('./app'); // tu instancia de Express
+
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: { origin: '*' }
+});
+
+// Conexión de WebSocket
+io.on('connection', (socket) => {
+  console.log('Nuevo cliente conectado:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado:', socket.id);
+  });
+});
+
+// Hacer `io` accesible globalmente
+app.set('io', io); */
+
+
+
 
 // rutas
 app.use('/api/auth', authRoutes)
@@ -50,6 +84,15 @@ app.use('/api/inventario-habitacion', inventarioHabitacionRoutes)
 app.use('/api/inventario-sector', inventarioSectorRoutes)
 
 app.use('/api/clientes', clientesRoutes)
+
+app.use('/api/roles', rolesRoutes)
+
+app.use('/api/tipos_tarea', tiposTareaRoutes)
+app.use('/api/asignaciones', asignacionesRoutes)
+
+
+app.use(usuariosRoutes)
+
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`))
