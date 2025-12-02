@@ -42,6 +42,32 @@ app.use(cors({
 
 app.use(express.json())
 
+// Incializar WebSocket
+
+/* const http = require('http');
+const socketIo = require('socket.io');
+const app = require('./app'); // tu instancia de Express
+
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: { origin: '*' }
+});
+
+// Conexión de WebSocket
+io.on('connection', (socket) => {
+  console.log('Nuevo cliente conectado:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado:', socket.id);
+  });
+});
+
+// Hacer `io` accesible globalmente
+app.set('io', io); */
+
+
+
+
 // rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/habitaciones', habitacionRoutes)

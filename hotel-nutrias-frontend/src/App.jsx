@@ -26,12 +26,39 @@ import UsuariosEmpleadosAdmin from './paginas/dashboard/UsuariosEmpleadosAdmin'
 
 import NoAutorizado from './paginas/NoAutorizado'
 
-import { RutaAdmin, RutaCliente } from './rutas/RutasProtegidas'
+import InicioCliente from './paginas/roles_login/cliente/InicioCliente'
+import InicioRecepcionista from './paginas/roles_login/recepcionista/InicioRecepcionista'
+import InicioCamarero from './paginas/roles_login/camarero/InicioCamarero'
+import InicioCocinero from './paginas/roles_login/cocinero/InicioCocinero'
+import InicioLimpieza from './paginas/roles_login/limpieza/InicioLimpieza'
+
+import {
+  RutaCliente,
+  RutaRecepcionista,
+  RutaCamarero,
+  RutaCocinero,
+  RutaLimpieza, RutaAdmin
+} from './rutas/RutasProtegidas'
+
+//import { RutaAdmin, RutaCliente } from './rutas/RutasProtegidas'
 import FaceLoginDescriptors from './paginas/empleados/FaceLoginDescriptors'
 import FaceRegistrationDescriptors from './paginas/empleados/FaceRegistrationDescriptors'
 
 import AsignacionesAdmin from './paginas/dashboard/AsignacionesAdmin'
 import TiposTareaAdmin from './paginas/dashboard/TiposTareaAdmin'
+
+/* import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { ThemeProvider } from './context/ThemeContext'; */
+
+
+/* ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  </React.StrictMode>
+); */
 
 function App() {
   return (
@@ -89,11 +116,39 @@ function App() {
           <Route path="/admin/usuarios-clientes" element={<DashboardLayout><UsuariosClientesAdmin /></DashboardLayout>} />
           <Route path="/admin/usuarios-empleados" element={<DashboardLayout><UsuariosEmpleadosAdmin /></DashboardLayout>} />
 
-          {/* <Route path="/login-rostro" element={<FaceLogin />} /> */}
+          {/* estas dos ultimas , fue usado para pruebas del reconocimiento facial */}
 
           <Route path="/FaceLoginDescriptor" element={<FaceLoginDescriptors />} />
 
           <Route path="/FaceRegistrationDescriptors" element={<FaceRegistrationDescriptors />} />
+
+
+          {/* Roles protegidos de los empleados */}
+          {/* Cliente */}
+          <Route path="/cliente" element={
+            <RutaCliente><InicioCliente /></RutaCliente>
+          } />
+
+          {/* Recepcionista */}
+          <Route path="/recepcionista" element={
+            <RutaRecepcionista><InicioRecepcionista /></RutaRecepcionista>
+          } />
+
+          {/* Camarero */}
+          <Route path="/camarero" element={
+            <RutaCamarero><InicioCamarero /></RutaCamarero>
+          } />
+
+          {/* Cocinero */}
+          <Route path="/cocinero" element={
+            <RutaCocinero><InicioCocinero /></RutaCocinero>
+          } />
+
+          {/* Limpieza */}
+          <Route path="/limpieza" element={
+            <RutaLimpieza><InicioLimpieza /></RutaLimpieza>
+          } />
+
 
         </Routes>
       </AuthProvider>

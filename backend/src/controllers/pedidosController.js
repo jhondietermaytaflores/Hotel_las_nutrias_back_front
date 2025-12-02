@@ -57,14 +57,41 @@ export const listarPedidos = async (req, res) => {
  */
 
 export const listarPedidos = async (req, res) => {
-  const { data, error } = await supabase.from('pedidos').select('*')
-  if (error) return res.status(500).json({ error: error.message })
-  res.json(data)
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select(`
+      id_pedido,
+      total,
+      estado,
+      fecha_pedido,
+      usuario:usuarios (
+        id,
+        nombre,
+        correo
+      ),
+      cliente:clientes (
+        id_cliente,
+        nombre,
+        apellido,
+        correo
+      ),
+      detalle_pedido (
+        cantidad,
+        precio_unitario,
+        productos (
+          nombre,
+          imagen_url
+        )
+      )
+    `)
+    .order('fecha_pedido', { ascending: false });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
 }
 
 //seg
 
-export const obtenerPedidoPorId = async (req, res) => {
+/* export const obtenerPedidoPorId = async (req, res) => {
   const { id } = req.params
   const { data, error } = await supabase
     .from('pedidos')
@@ -85,7 +112,80 @@ export const obtenerPedidoPorId = async (req, res) => {
 
   if (error) return res.status(404).json({ error: 'Pedido no encontrado' })
   res.json(data)
-}
+} */
+
+export const obtenerPedidoPorId = async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select(`
+      id_pedido,
+      total,
+      estado,
+      fecha_pedido,
+      metodo_pago,
+      tipo_comprobante,
+      usuario:usuarios (
+        id,
+        nombre,
+        correo
+      ),
+      cliente:clientes (
+        id_cliente,
+        nombre,
+        apellido,
+        correo
+      ),
+      detalle_pedido (
+        cantidad,
+        precio_unitario,
+        productos (
+          nombre,
+          imagen_url,
+          descripcion
+        )
+      )
+    `)
+    .eq('id_pedido', id)
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: 'Pedido no encontrado' });
+  res.json(data);
+};
+
+export const actualizarEstadoPedido = async (req, res) => {
+  const { id } = req.params;
+  const { estado, usuario_id, observaciones } = req.body; 
+  // usuario_id: pasar desde el frontend o extraer del JWT
+  // 1) obtener estado anterior
+  const { data: pedidoActual, error: err0 } = await supabase
+    .from('pedidos')
+    .select('estado')
+    .eq('id_pedido', id)
+    .single();
+  if (err0 || !pedidoActual) return res.status(404).json({ error: 'Pedido no encontrado' });
+  const estadoAnterior = pedidoActual.estado;
+  // 2) actualizar pedido
+  const { error: err1 } = await supabase
+    .from('pedidos')
+    .update({ estado })
+    .eq('id_pedido', id);
+  if (err1) return res.status(400).json({ error: err1.message });
+  // 3) insertar historial
+  const { error: err2 } = await supabase
+    .from('historial_pedidos')
+    .insert([{
+      pedido_id: id,
+      usuario_id, 
+      estado_anterior: estadoAnterior,
+      estado_nuevo: estado,
+      observaciones: observaciones || null
+    }]);
+  if (err2) console.error('Error al guardar historial:', err2);
+  res.json({ mensaje: 'Estado actualizado' });
+};
+
+
 export const actualizarPedido = async (req, res) => {
   const { id } = req.params
   const { estado, metodo_pago, tipo_comprobante } = req.body
@@ -114,14 +214,14 @@ export const eliminarPedido = async (req, res) => {
 }
 
 
-export const actualizarEstadoPedido = async (req, res) => {
+/* export const actualizarEstadoPedido = async (req, res) => {
   const { id } = req.params
   const { estado } = req.body
 
   const { error } = await supabase.from('pedidos').update({ estado }).eq('id_pedido', id)
   if (error) return res.status(400).json({ error: error.message })
   res.json({ mensaje: 'Estado actualizado' })
-}
+} */
 
 
 

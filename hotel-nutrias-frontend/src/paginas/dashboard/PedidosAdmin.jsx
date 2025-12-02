@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../servicios/api'
 import Swal from 'sweetalert2'
-import { FaClipboardCheck, FaShippingFast, FaCheck, FaTimes } from 'react-icons/fa'
+import { FaClipboardCheck, FaClipboardList, FaShippingFast, FaCheck, FaTimes } from 'react-icons/fa'
+import dayjs from 'dayjs'
 
 function PedidosAdmin() {
   const [pedidos, setPedidos] = useState([])
 
   const cargarPedidos = async () => {
-    const { data } = await api.get('/pedidos')
-    setPedidos(data)
+    /* const { data } = await api.get('/pedidos')
+    setPedidos(data) */
+    try {
+      const { data } = await api.get('/pedidos')
+      setPedidos(data)
+    } catch (error) {
+      console.error('Error cargando pedidos:', error)
+    }
   }
 
   const cambiarEstado = async (pedido, nuevoEstado) => {
@@ -18,10 +25,57 @@ function PedidosAdmin() {
       confirmButtonText: 'Sí, confirmar',
     })
 
-    if (confirm.isConfirmed) {
+    /* if (confirm.isConfirmed) {
       await api.put(`/pedidos/${pedido.id_pedido}`, { estado: nuevoEstado })
       Swal.fire('Actualizado', 'Estado del pedido modificado', 'success')
       cargarPedidos()
+    } */
+
+    try {
+      await api.put(`/pedidos/${pedido.id_pedido}`, { estado: nuevoEstado })
+      Swal.fire('Actualizado', 'Estado del pedido modificado', 'success')
+      cargarPedidos()
+    } catch (error) {
+      console.error('Error actualizando estado:', error)
+      Swal.fire('Error', 'No se pudo actualizar estado', 'error')
+    }
+  }
+
+  const verDetalle = async (pedidoId) => {
+    try {
+      const { data } = await api.get(`/pedidos/${pedidoId}`)
+      // Construir HTML para Swal:
+      const cliente = data.cliente
+      const usuario = data.usuario
+      const fecha = dayjs(data.fecha_pedido).format('DD/MM/YYYY HH:mm')
+      let productosHtml = '<ul style="text-align:left;">'
+      data.detalle_pedido.forEach(d => {
+        productosHtml += `<li>
+          ${d.productos?.nombre || 'Producto'} - Cantidad: ${d.cantidad} - Precio U: Bs ${d.precio_unitario.toFixed(2)} - Subtotal: Bs ${(d.cantidad * d.precio_unitario).toFixed(2)}
+        </li>`
+      })
+      productosHtml += '</ul>'
+
+      const html = `
+        <p><strong>Cliente:</strong> ${cliente?.nombre || ''} ${cliente?.apellido || ''} (${cliente?.correo || ''})</p>
+        <p><strong>Solicitado por (usu.):</strong> ${usuario?.nombre || ''} (${usuario?.correo || ''})</p>
+        <p><strong>Fecha pedido:</strong> ${fecha}</p>
+        <p><strong>Método de pago:</strong> ${data.metodo_pago || '-'}</p>
+        <p><strong>Tipo comprobante:</strong> ${data.tipo_comprobante || '-'}</p>
+        <p><strong>Total:</strong> Bs ${Number(data.total).toFixed(2)}</p>
+        <hr />
+        <p><strong>Productos:</strong></p>
+        ${productosHtml}
+      `
+      Swal.fire({
+        title: `Detalle Pedido #${pedidoId}`,
+        html,
+        width: '600px',
+        confirmButtonText: 'Cerrar'
+      })
+    } catch (error) {
+      console.error('Error obteniendo detalle:', error)
+      Swal.fire('Error', 'No se pudo cargar detalle del pedido', 'error')
     }
   }
 
@@ -35,45 +89,49 @@ function PedidosAdmin() {
 
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full text-left">
-          <thead className="bg-gray-200">
+          <thead className="dark:bg-[#143c43] text-white">
             <tr>
+              <th className="p-3">ID</th>
               <th className="p-3">Cliente</th>
-              <th>Total</th>
-              <th>Estado</th>
-              <th>Productos</th>
+              <th className='p-3'>Total</th>
+              <th className='p-3'>Estado</th>
+              <th className='p-3'>Fecha</th>
               <th className="text-center">Acciones</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className='dark:bg-[#246b77] text-white'>
             {pedidos.map((p) => (
               <tr key={p.id_pedido} className="border-t">
-                <td className="p-3">{p.cliente_id}</td>
-                <td>Bs {p.total}</td>
-                <td>
+                <td className="p-3">{p.id_pedido}</td>
+                <td className="p-3">{p.cliente?.nombre} {p.cliente?.apellido}</td>
+                <td className="p-3">Bs {Number(p.total).toFixed(2)}</td>
+                <td className="p-3">
                   <span
-                    className={`px-2 py-1 rounded text-white text-xs font-semibold ${
-                      p.estado === 'pendiente'
+                    className={`px-2 py-1 rounded text-white text-xs font-semibold ${p.estado === 'pendiente'
                         ? 'bg-yellow-500'
                         : p.estado === 'por entregar'
-                        ? 'bg-blue-500'
-                        : p.estado === 'entregado'
-                        ? 'bg-green-600'
-                        : 'bg-red-600'
-                    }`}
+                          ? 'bg-blue-500'
+                          : p.estado === 'entregado'
+                            ? 'bg-green-600'
+                            : 'bg-red-600'
+                      }`}
                   >
                     {p.estado}
                   </span>
                 </td>
-                <td>
-                  <ul className="list-disc list-inside text-sm">
-                    {p.detalle_pedido?.map((d, i) => (
-                      <li key={i}>
-                        {d.productos?.nombre || 'Producto'} (x{d.cantidad})
-                      </li>
-                    ))}
-                  </ul>
+                <td className="p-3">
+                  {dayjs(p.fecha_pedido).format('DD/MM/YYYY')}
                 </td>
-                <td className="text-center space-x-2">
+                <td className="text-center p-3 space-x-2">
+                  {/* Ver detalle */}
+                  <button
+                    onClick={() => verDetalle(p.id_pedido)}
+                    className="text-gray-600 hover:text-gray-800"
+                    title="Ver detalle"
+                  >
+                    <FaClipboardList />
+                  </button>
+                  {/* Cambiar estado según flujo */}
                   {p.estado === 'pendiente' && (
                     <button
                       onClick={() => cambiarEstado(p, 'por entregar')}

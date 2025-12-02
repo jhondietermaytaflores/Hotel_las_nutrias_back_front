@@ -89,18 +89,18 @@ export default function AsignacionesAdmin() {
                 placeholder="Buscar por usuario, tarea o descripción"
                 value={busqueda}
                 onChange={e => setBusqueda(e.target.value)}
-                className="border px-4 py-2 mb-4 w-full"
+                className="border px-4 py-2 mb-4 w-full light:bg-white light:text-black dark:text-white dark:bg-[#1e293b] dark:border-gray-700 rounded"
             />
             <h3 className="text-lg mb-2">Nueva Asignación</h3>
             <div className="grid grid-cols-3 gap-4 mb-4">
-                <select value={usuarioId} onChange={e => setUsuarioId(e.target.value)} className="border p-2">
+                <select value={usuarioId} onChange={e => setUsuarioId(e.target.value)} className="border p-2 text-white dark:bg-blue-950">
                     <option value="">Seleccione Usuario</option>
                     {usuarios.map(u => (
                         <option key={u.id} value={u.id}>{u.nombre}</option>
                     ))}
                 </select>
 
-                <select value={tareaId} onChange={e => setTareaId(e.target.value)} className="border p-2">
+                <select value={tareaId} onChange={e => setTareaId(e.target.value)} className="border p-2 dark:text-white dark:bg-blue-950">
                     <option value="">Seleccione Tipo de Tarea</option>
                     {tiposTarea.map(t => (
                         <option key={t.id_tarea} value={t.id_tarea}>{t.nombre_tarea}</option>
@@ -108,7 +108,7 @@ export default function AsignacionesAdmin() {
                 </select>
 
                 {/* 🔧 Habitación */}
-                <select width="10px" value={habitacionId} onChange={e => setHabitacionId(e.target.value)} className="border p-2">
+                <select width="10px" value={habitacionId} onChange={e => setHabitacionId(e.target.value)} className="border p-2 dark:text-white dark:bg-blue-950">
                     <option value="">a N° Hab</option>
                     {habitaciones.map(h => (
                         <option key={h.id_habitacion} value={h.id_habitacion}>
@@ -136,7 +136,7 @@ export default function AsignacionesAdmin() {
                     <select
                         value={estadoAsignacion}
                         onChange={e => setEstadoAsignacion(e.target.value)}
-                        className="border p-2 mb-2"
+                        className="border p-2 mb-2 dark:text-white dark:bg-blue-950"
                     >
                         <option value="pendiente">Pendiente</option>
                         <option value="en progreso">En Progreso</option>
@@ -151,9 +151,9 @@ export default function AsignacionesAdmin() {
             <button onClick={guardarAsignacion} className="bg-green-600 text-white px-4 py-2 rounded">
                 {idAsignacionEditando ? 'Actualizar' : 'Asignar'}
             </button>
-            <table className="min-w-full mt-6 border">
+            <table className="min-w-full mt-6 border dark:bg-blue-950">
                 <thead>
-                    <tr className="bg-gray-100">
+                    <tr className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
                         <th className="p-2 border">Usuario</th>
                         <th className="p-2 border">Tarea</th>
                         <th className="p-2 border">Habitación</th>
@@ -166,13 +166,13 @@ export default function AsignacionesAdmin() {
                 <tbody>
                     {asignacionesFiltradas.map(a => (
                         <tr key={a.id_asignacion}>
-                            <td className="p-2 border">{a.usuario?.nombre || a.usuario_id}</td>
-                            <td className="p-2 border">{a.tipo_tarea?.nombre_tarea || a.tarea_id}</td>
-                            <td className="p-2 border">{a.habitacion?.numero || a.habitacion_id}</td>
-                            <td className="p-2 border">{a.descripcion}</td>
-                            <td className="p-2 border">{a.estado}</td>
-                            <td className="p-2 border">{new Date(a.fecha_asignacion).toLocaleString()}</td>
-                            <td className="p-2 border flex gap-2">
+                            <td className="p-2 border dark:text-white">{a.usuario?.nombre || a.usuario_id}</td>
+                            <td className="p-2 border dark:text-white">{a.tipo_tarea?.nombre_tarea || a.tarea_id}</td>
+                            <td className="p-2 border dark:text-white">{a.habitacion?.numero || a.habitacion_id}</td>
+                            <td className="p-2 border dark:text-white">{a.descripcion}</td>
+                            <td className="p-2 border dark:text-white">{a.estado}</td>
+                            <td className="p-2 border dark:text-white">{new Date(a.fecha_asignacion).toLocaleString()}</td>
+                            <td className="p-2  border flex-col  gap-2">
                                 <button
                                     onClick={() => {
                                         setUsuarioId(a.usuario_id)
