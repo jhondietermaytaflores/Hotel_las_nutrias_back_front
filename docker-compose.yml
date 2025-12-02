@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  frontend:
+    image: jhonmayta/frontend:latest
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  backend:
+    image: jhonmayta/backend:latest
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - Supabase_URL=https://ieydtvsomezqjfntnkof.supabase.co
+      - Supabase_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhleWR0dnNvbWV6cWpmbmRub2YiLCJhdWQiOiJhY2Nlc3MiLCJpYXQiOjE2OTAzMTU3ODMsImV4cCI6MTk0NTg3MTc4M30.DQ8Z9Uu0kz0n1Y5v1b0X-3j2k5bF7O8X4Z5v5X1fXzI
