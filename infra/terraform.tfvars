@@ -1,7 +1,7 @@
 tenancy_ocid     = "ocid1.tenancy.oc1..aaaaaaaatnsn3wm2cxfwc2b3poz6culwb343kg4yigh3i3v7hkg7ouaunrsa"
 user_ocid        = "ocid1.user.oc1..aaaaaaaads7ckkjcxyjledyr3c3mf3ywk6sbimdf45eql3fejzextm32hnwq"
 fingerprint      = "b1:ca:02:27:ab:c0:bd:98:d0:9f:02:40:b4:a5:18:ca"
-private_key_path = "D:\6toSemestre\proyectoSistemas-3\a\newKeys_for_Github\ci_ssh.key"
+private_key_path = "D:/6toSemestre/proyectoSistemas-3/a/newKeys_for_Github/ci_ssh.key"
 
 region                 = "sa-saopaulo-1"
 compartment_ocid       = "ocid1.tenancy.oc1..aaaaaaaatnsn3wm2cxfwc2b3poz6culwb343kg4yigh3i3v7hkg7ouaunrsa"
